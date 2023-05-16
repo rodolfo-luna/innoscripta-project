@@ -2,6 +2,8 @@ from fastapi import Query
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import status
+from fastapi import Depends
+from dependency import has_access
 import openai
 import re
 from typing import Optional
@@ -77,7 +79,8 @@ def query_database(company_name, country, website):
 @router.get("/company")
 async def company(company_name: str = Query(default=None), 
                   country: str = Query(default=None), 
-                  website: Optional[str] = ""):
+                  website: Optional[str] = "",
+                  authenticated: bool = Depends(has_access)):
     products = ""
     attempts = 1
 

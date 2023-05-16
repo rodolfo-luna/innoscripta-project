@@ -1,9 +1,11 @@
-from fastapi import FastAPI
-
+from fastapi import FastAPI, Depends
 from routes import company_router
+from dependency import has_access
 
 
 app = FastAPI(title='Companies api')
+
+PROTECTED = [Depends(has_access)]
 app.include_router(company_router.router, tags=['company'])
 
 
