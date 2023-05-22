@@ -13,7 +13,6 @@ import json
 
 router = APIRouter()
 
-# Set up OpenAI API key
 openai.api_key = "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"
 
 prompt = ("Given the name of the company: [COMPANY NAME], country they are coming from: [COUNTRY], their Website URL: [WEBSITE], extract entities like the Products/services they offer, some Keywords about them,  year founded, current employee estimate, linkedin url, the company sic code and naics code from the description")
@@ -61,26 +60,17 @@ def get_keywords(generated_text):
 
 
 def get_photos(query):
-    '''Get image related to the products/services.'''
-
-    # Set up your Unsplash API access credentials
+    '''Get image related to the products/services.
+    '''
     access_key = 'UCZGHt7b9kTWxufUGIpLDENwD9su2Mwm9tlvYSoXqJc'
-
-    # Set the endpoint URL for searching photos
     url = 'https://api.unsplash.com/search/photos'
 
-    # Set the query parameters
     params = {
         'query': query,
         'client_id': access_key
     }
-
-    # Send GET request to the API endpoint
     response = requests.get(url, params=params)
-
-    # Check if the request was successful (status code 200)
     if response.status_code == 200:
-        # Parse the response JSON
         data = response.json()
 
         if len(data['results']) > 0:
@@ -154,8 +144,6 @@ async def company(company_name: str = Query(default=None),
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Company not found')
 
-
-    # Render HTML response with company information
     response_data = {}
     response_data["Company Name"] = company_name
     response_data["Country"] = country
