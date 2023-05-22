@@ -7,13 +7,16 @@ from dependency import has_access
 import openai
 import re
 from typing import Optional
+import requests
+import json
+
 
 router = APIRouter()
 
 # Set up OpenAI API key
 openai.api_key = "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"
 
-prompt = ("Given the name of the company: [COMPANY NAME], country they are coming from: [COUNTRY], their Website URL: [WEBSITE], extract entities like the Products/services they offer, some Keywords about them, their Product/service images, the company sic code and naics code from the description")
+prompt = ("Given the name of the company: [COMPANY NAME], country they are coming from: [COUNTRY], their Website URL: [WEBSITE], extract entities like the Products/services they offer, some Keywords about them,  year founded, current employee estimate, linkedin url, the company sic code and naics code from the description")
 
 def prompt_openai(prompt, company_name, country, website):
     '''Send the prompt to openai.
@@ -39,7 +42,7 @@ def extract_generated_text(response):
 def get_products_or_services(generated_text):
     '''Extract products/services from the generated text.
     '''
-    products_match = re.search(r"Products/Services: (.+)\n", generated_text, re.IGNORECASE)
+    products_match = re.search(r"Products/Services(?: offered)?: (.+)\n", generated_text, re.IGNORECASE)
     if products_match:
         products = products_match.group(1)
     else:
@@ -55,6 +58,55 @@ def get_keywords(generated_text):
     else:
         keywords = ""
     return keywords
+
+
+def get_photos(query):
+    '''Get image related to the products/services.'''
+
+    # Set up your Unsplash API access credentials
+    access_key = 'UCZGHt7b9kTWxufUGIpLDENwD9su2Mwm9tlvYSoXqJc'
+
+    # Set the endpoint URL for searching photos
+    url = 'https://api.unsplash.com/search/photos'
+
+    # Set the query parameters
+    params = {
+        'query': query,
+        'client_id': access_key
+    }
+
+    # Send GET request to the API endpoint
+    response = requests.get(url, params=params)
+
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the response JSON
+        data = response.json()
+
+        if len(data['results']) > 0:
+            list_of_images_url = []
+            for item in data['results']:
+                list_of_images_url.append(item['urls']['regular'])
+            return list_of_images_url
+        else: 
+            return ""
+
+
+def get_other(generated_text):
+    '''Get other information from the generated text.'''
+    patterns = [
+        (r"Year founded: (\d{4})", "Year founded:"),
+        (r"current employee estimate: (.+)\n", "current employee estimate:"),
+        (r"linkedin url: (.+)\n", "linkedin url:")
+    ]
+
+    matches = [re.search(pattern, generated_text, re.IGNORECASE) for pattern, _ in patterns]
+    results = [match.group(1) for match in matches if match]
+
+    info = ". ".join([f"{prefix} {result}" for (_, prefix), result in zip(patterns, results)])
+
+    return info
+
 
 def get_naics(generated_text):
     '''Get naics from the generated text.
@@ -89,7 +141,10 @@ async def company(company_name: str = Query(default=None),
             response = prompt_openai(prompt, company_name, country, website)
             generated_text = extract_generated_text(response)
             products = get_products_or_services(generated_text)
+            productlist = [get_products_or_services(generated_text)]
             keywords = get_keywords(generated_text)
+            images = get_photos(productlist[0])
+            info = get_other(generated_text)
             naics = get_naics(generated_text)
             sic = get_sic(generated_text)
             attempts +=1
@@ -107,8 +162,9 @@ async def company(company_name: str = Query(default=None),
     response_data["Website"] = website
     response_data["Products/Services"] = products
     response_data["keywords"] = keywords
+    response_data["Products/Services Images"] = images
+    response_data["Other Info"] = info
     response_data["NAICS"] = naics
     response_data["SIC"] = sic
 
-    return response_data
-    
+    return response_data 
