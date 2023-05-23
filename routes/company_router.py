@@ -130,8 +130,7 @@ async def company(company_name: str = Query(default=None),
             naics = get_naics(generated_text)
             sic = get_sic(generated_text)
             attempts +=1
-    except Exception as e: 
-        print(e)
+    except: 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Company not found')
 
