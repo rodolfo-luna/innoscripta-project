@@ -8,7 +8,6 @@ import openai
 import re
 from typing import Optional
 import requests
-import json
 
 
 router = APIRouter()
@@ -73,13 +72,13 @@ def get_photos(query):
     if response.status_code == 200:
         data = response.json()
 
-        if len(data['results']) > 0:
+        if len(data['results']) > 1:
             list_of_images_url = []
-            for item in data['results']:
-                list_of_images_url.append(item['urls']['regular'])
+            list_of_images_url.append(data['results'][0]['urls']['regular'])  
+            list_of_images_url.append(data['results'][1]['urls']['regular']) 
             return list_of_images_url
         else: 
-            return ""
+            return data['urls']['regular']
 
 
 def get_other(generated_text):
@@ -112,12 +111,6 @@ def get_sic(generated_text):
     sic = ", ".join(sic_matches) if sic_matches else ""
     return sic
 
-def query_database(company_name, country, website):
-    '''Query for the company in the database.
-    '''
-    products = "INFO"
-    return products
-
 @router.get("/company")
 async def company(company_name: str = Query(default=None), 
                   country: str = Query(default=None), 
@@ -138,8 +131,6 @@ async def company(company_name: str = Query(default=None),
             naics = get_naics(generated_text)
             sic = get_sic(generated_text)
             attempts +=1
-            if attempts == 4 and products == "":
-                products = query_database(company_name, country, website)
     except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Company not found')
