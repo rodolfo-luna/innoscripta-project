@@ -71,14 +71,13 @@ def get_photos(query):
     response = requests.get(url, params=params)
     if response.status_code == 200:
         data = response.json()
+        results = data.get('results', [])
 
-        if len(data['results']) > 1:
-            list_of_images_url = []
-            list_of_images_url.append(data['results'][0]['urls']['regular'])  
-            list_of_images_url.append(data['results'][1]['urls']['regular']) 
-            return list_of_images_url
-        else: 
-            return data['urls']['regular']
+    if results:
+        list_of_images_url = [result['urls']['regular'] for result in results[:2]]
+        return list_of_images_url if len(list_of_images_url) > 1 else list_of_images_url[0]
+
+    return ""
 
 
 def get_other(generated_text):
@@ -131,7 +130,8 @@ async def company(company_name: str = Query(default=None),
             naics = get_naics(generated_text)
             sic = get_sic(generated_text)
             attempts +=1
-    except:
+    except Exception as e: 
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Company not found')
 
