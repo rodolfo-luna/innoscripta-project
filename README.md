@@ -1,6 +1,6 @@
 # Innoscripta Data Hackathon
 
-his hackathon project aims to provide comprehensive data about companies from around the world. The main goal is to develop an application that allows users to 
+This hackathon project aims to provide comprehensive data about companies from around the world. The main goal is to develop an application that allows users to 
 retrieve information about a company by providing its name, country, and optionally the website. The application will then display details about the company's 
 products/services along with relevant images.
 
