@@ -24,9 +24,9 @@ products/services along with relevant images.
 - Streamlit: The user-friendly front end is built using the Streamlit framework.
 - FastAPI: The robust back end is developed using the FastAPI framework, ensuring fast and efficient information retrieval.
 
-  ## Future Enhancements
+## Future Enhancements
 
-  We are constantly working to improve the application and plan to add the following features in the future:
+We are constantly working to improve the application and plan to add the following features in the future:
 
 - Enhanced search capabilities, including advanced filters and sorting options.
 - Integration with external data sources to expand the range of available company information.
