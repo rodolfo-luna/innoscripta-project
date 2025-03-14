@@ -12,7 +12,7 @@ import requests
 
 router = APIRouter()
 
-openai.api_key = "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"
+openai.api_key = "API KEY"
 
 prompt = ("Given the name of the company: [COMPANY NAME], country they are coming from: [COUNTRY], their Website URL: [WEBSITE], extract entities like the Products/services they offer, some Keywords about them,  year founded, current employee estimate, linkedin url, the company sic code and naics code from the description")
 
